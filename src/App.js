@@ -1,14 +1,14 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const App = () => {
+  const [input, setInput] = useState("");
   const [weather, setWeather] = useState(null);
-  // const defWeather = ["london" , "Paris" , "New York"];
 
-  const getWeather = async () => {
+  const getWeather = async (data) => {
     try {
       const response = await axios.get(
-        `http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_KEY_WAEATHER}&q=London&aqi=yes`
+        `http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_KEY_WAEATHER}&q=${data}&aqi=yes`
       );
       setWeather(response.data);
     } catch (error) {
@@ -16,21 +16,41 @@ const App = () => {
     }
   };
 
-  getWeather();
+  useEffect(() => {
+    getWeather("Dallas");
+  }, []);
+
+  const triggerButton = (data) => {
+    getWeather(data);
+  };
 
   return (
     <div className="App">
-      <div>Weather App</div>
-      <input placeholder="Search ..."></input>
-      <div className="def-result">
+      <h1>Weather App</h1>
+      <input
+        placeholder="Search City..."
+        onChange={(e) => {
+          setInput(e.target.value);
+        }}
+        value={input}
+      ></input>
+      <button
+        onClick={() => {
+          triggerButton(input);
+        }}
+      >
+        Search
+      </button>
+      <div className="search">
         {weather && (
           <div>
-            <h1>{weather.location.name}</h1>
-            <h1>{weather.location.localtime}</h1>
-            <h1>{weather.location.country}</h1>
-            <h1>{weather.current.feelslike_c}</h1>
-            <h1>{weather.current.feelslike_f}</h1>
             <img src={weather.current.condition.icon} alt="weather-icon"></img>
+            <h3> City: {weather.location.name}</h3>
+            <h3> Country: {weather.location.country}</h3>
+
+            <h3>Local Time: {weather.location.localtime}</h3>
+            <h3>Temperature: {weather.current.feelslike_c}F°</h3>
+            <h3>Temperature: {weather.current.feelslike_f}C°</h3>
           </div>
         )}
       </div>
